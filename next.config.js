@@ -6,6 +6,7 @@ const withNextra = require('nextra')({
 
 
 module.exports = withNextra({
+    output: "export",
     // Your existing configuration and new conditional paths
     reactStrictMode: true,
     basePath: isProd ? '/nextra-demo' : '',
