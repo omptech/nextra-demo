@@ -6,6 +6,9 @@ const withNextra = require('nextra')({
 
 
 module.exports = withNextra({
+    images: {
+        unoptimized: true,
+    },
     output: "export",
     // Your existing configuration and new conditional paths
     reactStrictMode: true,
