@@ -11,7 +11,5 @@ module.exports = withNextra({
     },
     output: "export",
     // Your existing configuration and new conditional paths
-    reactStrictMode: true,
-    basePath: isProd ? '/nextra-demo' : '',
-    assetPrefix: isProd ? '/nextra-demo/' : '',
+    reactStrictMode: true
 });
