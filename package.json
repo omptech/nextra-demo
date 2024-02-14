@@ -9,8 +9,11 @@
     "scripts": {
         "dev": "next dev",
         "build": "next build && next export",
-        "export": "next export",
-        "deploy": "gh-pages -d out -b gh-pages --repo=https://github.com/<username>/<repository>.git",
-        "predeploy": "npm run build && npm run export"
+        "start": "next start",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d out -b gh-pages"
+    },
+    "devDependencies": {
+        "gh-pages": "^6.1.1"
     }
 }
