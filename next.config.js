@@ -4,9 +4,12 @@ const withNextra = require('nextra')({
     themeConfig: './theme.config.jsx'
 })
 
-module.exports = withNextra({
-    // Your existing configuration and new conditional paths
+module.exports = {
+    // Your existing configurations
     reactStrictMode: true,
-    basePath: isProd ? '/nextra-demo' : '',
-    assetPrefix: isProd ? '/nextra-demo/' : '',
-});
+    // Add the export configuration
+    output: 'export',
+    // Your basePath and assetPrefix configurations
+    basePath: process.env.NODE_ENV === 'production' ? '/nextra-demo' : '',
+    assetPrefix: process.env.NODE_ENV === 'production' ? '/nextra-demo/' : '',
+};
