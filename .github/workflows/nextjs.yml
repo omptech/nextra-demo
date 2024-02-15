@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master  # Set to your default branch
+      - 'feature/**'
 
   pull_request:
     branches: 
@@ -13,15 +14,10 @@ permissions:
   contents: write
   pages: write
   id-token: write
-  issues: write
-  pull-requests: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
 
     steps:
     - name: Checkout Repository
@@ -37,8 +33,6 @@ jobs:
 
     - name: Build and Export
       run: npm run build
-      env:
-        NEXT_PUBLIC_PR_NUMBER: ${{ github.event.pull_request.number }}
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@4.1.4
@@ -46,12 +40,3 @@ jobs:
         branch: gh-pages
         folder: out
         token: ${{ secrets.GITHUB_TOKEN }}
-        target-folder: pr-${{ github.event.pull_request.number }}
-
-    - name: Comment PR Preview URL
-      uses: unsplash/comment-on-pr@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        msg: "🚀 PR preview is available at https://omptech.github.io/nextra-demo/pr-${{ github.event.pull_request.number }}"
-        check_for_duplicate_msg: true
