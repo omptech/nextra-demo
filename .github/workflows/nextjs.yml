@@ -61,7 +61,7 @@ jobs:
       with:
         script: |
           const issueNumber = context.issue.number;
-          const prPreviewUrl = `https://<username>.github.io/<repository>/pr-${issueNumber}`;
+          const prPreviewUrl = `https://omptech.github.io/nextra-demo/pr-${issueNumber}`;
           const message = `🚀 PR preview is available at ${prPreviewUrl}`;
           github.rest.issues.createComment({
             owner: context.repo.owner,
