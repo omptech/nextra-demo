@@ -1,42 +1,88 @@
-name: Deploy to GitHub Pages
+name: Build, Deploy, and Manage PR Previews
 
 on:
   push:
     branches:
-      - master  # Set to your default branch
-      - 'feature/**'
-
+      - master
   pull_request:
     branches: 
       - master
+  pull_request_target:
+    types: [closed]
 
 permissions:
   contents: write
   pages: write
   id-token: write
+  issues: write
+  pull-requests: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Setup Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '18' # Use the Node.js version that matches your development environment
+        node-version: '18' 
 
     - name: Install Dependencies
       run: npm install
 
-    - name: Build and Export
+    - name: Build and Export (Static Site)
       run: npm run build
+      env:
+        # Use environment variables as needed for your build process
+        NEXT_PUBLIC_PR_NUMBER: ${{ github.event.pull_request.number }}
 
-    - name: Deploy to GitHub Pages
+    - name: Deploy to GitHub Pages (Production)
+      if: github.event_name == 'push'
       uses: JamesIves/github-pages-deploy-action@4.1.4
       with:
         branch: gh-pages
         folder: out
         token: ${{ secrets.GITHUB_TOKEN }}
+        # No target-folder for production deployment
+
+    - name: Deploy PR Preview to GitHub Pages
+      if: github.event_name == 'pull_request'
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: out
+        token: ${{ secrets.GITHUB_TOKEN }}
+        target-folder: pr-${{ github.event.pull_request.number }}
+
+    - name: Comment PR Preview URL
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const issueNumber = context.issue.number;
+          const prPreviewUrl = `https://omptech.github.io/nextra-demo/pr-${issueNumber}`;
+          const message = `🚀 PR preview is available at ${prPreviewUrl}`;
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issueNumber,
+            body: message
+          });
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-preview:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: 'gh-pages'
+
+      - name: Cleanup PR Preview
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          echo "Removing PR preview for PR #$PR_NUMBER..."
+          git rm -rf ./pr-$PR_NUMBER
+          git commit -m "Remove preview for PR #$PR_NUMBER"
+          git push
