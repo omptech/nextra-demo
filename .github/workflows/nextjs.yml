@@ -3,11 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master  # Set to your default branch
-
+      - master
   pull_request:
     branches: 
       - master
+  pull_request_target:
+    types: [closed]
 
 permissions:
   contents: write
@@ -19,42 +20,63 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      # Your existing steps for checkout, setup, install dependencies, build and export
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18' # Use the Node.js version that matches your development environment
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push'
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: out
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # Remove target-folder to deploy to the root for production
 
-    - name: Install Dependencies
-      run: npm install
+      - name: Deploy PR Preview to GitHub Pages
+        if: github.event_name == 'pull_request'
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: out
+          token: ${{ secrets.GITHUB_TOKEN }}
+          target-folder: pr-${{ github.event.pull_request.number }}
 
-    - name: Build and Export
-      run: npm run build
+      - name: Comment PR Preview URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            const prPreviewUrl = `https://omptech.github.io/nextra-demo/pr-${issueNumber}`;
+            const message = `🚀 PR preview is available at ${prPreviewUrl}`;
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: message
+            });
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Deploy to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@4.1.4
-      with:
-        branch: gh-pages
-        folder: out
-        token: ${{ secrets.GITHUB_TOKEN }}
-        target-folder: pr-${{ github.event.pull_request.number }}
+  cleanup-preview:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v2
+        with:
+          ref: gh-pages
 
-    - name: Comment PR Preview URL
-      uses: actions/github-script@v5
-      with:
-        script: |
-          const issueNumber = context.issue.number;
-          const prPreviewUrl = `https://omptech.github.io/nextra-demo/pr-${issueNumber}`;
-          const message = `🚀 PR preview is available at ${prPreviewUrl}`;
-          github.rest.issues.createComment({
-          owner: context.repo.owner,
-          repo: context.repo.repo,
-          issue_number: issueNumber,
-          body: message
-          });
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
 
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Cleanup PR Preview
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          # Assuming you have a script or command to remove the preview directory
+          npm run cleanup-pr-preview ${{ github.event.pull_request.number }}
