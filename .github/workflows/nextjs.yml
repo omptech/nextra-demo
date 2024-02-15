@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master  # Set to your default branch
+      - 'feature/**'
 
   pull_request:
     branches: 
