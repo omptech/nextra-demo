@@ -87,7 +87,15 @@ jobs:
       - name: Cleanup PR Preview
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
-          echo "Removing PR preview for PR #$PR_NUMBER..."
-          git rm -rf ./pr-$PR_NUMBER
+          DIRECTORY="pr-$PR_NUMBER"
+          # Find the directory in the gh-pages branch and delete it if found
+          git fetch origin gh-pages
+          git checkout gh-pages
+          if [ -d "$DIRECTORY" ]; then
+          echo "Directory $DIRECTORY found, deleting..."
+          git rm -rf "$DIRECTORY"
           git commit -m "Remove preview for PR #$PR_NUMBER"
-          git push
+          git push origin gh-pages
+          else
+          echo "Directory $DIRECTORY not found, skipping deletion."
+          fi
