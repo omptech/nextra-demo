@@ -49,9 +49,16 @@ jobs:
         target-folder: pr-${{ github.event.pull_request.number }}
 
     - name: Comment PR Preview URL
-      uses: unsplash/comment-on-pr@master
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions/github-script@v5
       with:
-        msg: "🚀 PR preview is available at https://omptech.github.io/nextra-demo/pr-${{ github.event.pull_request.number }}"
-        check_for_duplicate_msg: true
+        script: |
+          const issueNumber = context.issue.number;
+          const message = `🚀 PR preview is available at https://omptech.github.io/nextra-demo/pr-${issueNumber}`;
+          github.rest.issues.createComment({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          issue_number: issueNumber,
+          body: message
+          });
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
