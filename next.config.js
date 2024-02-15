@@ -6,6 +6,8 @@ const withNextra = require('nextra')({
 
 
 module.exports = withNextra({
+    basePath: process.env.PR_NUMBER ? `/pr-${process.env.PR_NUMBER}` : '',
+    assetPrefix: process.env.PR_NUMBER ? `/pr-${process.env.PR_NUMBER}` : '',
     images: {
         unoptimized: true,
     },
