@@ -10,7 +10,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "deploy": "gh-pages -d out"
+        "deploy": "gh-pages -d out",
         "cleanup-pr-preview": "node cleanup-pr-preview.js"
     },
     "devDependencies": {
