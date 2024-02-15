@@ -11,6 +11,7 @@
         "build": "next build",
         "start": "next start",
         "deploy": "gh-pages -d out"
+        "cleanup-pr-preview": "node cleanup-pr-preview.js"
     },
     "devDependencies": {
         "gh-pages": "^6.1.1"
