@@ -11,13 +11,16 @@ on:
 
 permissions:
   contents: write
-  issues: write
   pages: write
   id-token: write
+  issues: write
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
 
     steps:
     - name: Checkout Repository
@@ -47,7 +50,7 @@ jobs:
     - name: Comment PR Preview URL
       uses: unsplash/comment-on-pr@master
       env:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         msg: "🚀 PR preview is available at https://omptech.github.io/nextra-demo/pr-${{ github.event.pull_request.number }}"
         check_for_duplicate_msg: true
