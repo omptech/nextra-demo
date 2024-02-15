@@ -32,7 +32,7 @@ jobs:
       run: npm install
 
     - name: Build and Export (Static Site)
-      run: npm run build && npm run export
+      run: npm run build
       env:
         # Use environment variables as needed for your build process
         NEXT_PUBLIC_PR_NUMBER: ${{ github.event.pull_request.number }}
