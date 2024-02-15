@@ -79,6 +79,11 @@ jobs:
         with:
           ref: 'gh-pages'
 
+      - name: Configure Git
+        run: |
+          git config user.name "omptech"
+          git config user.email "omprakashlodhi38@gmail.com"
+
       - name: Cleanup PR Preview
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
