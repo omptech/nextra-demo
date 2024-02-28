@@ -56,6 +56,10 @@ jobs:
         # Ensure the output directory exists
         mkdir -p out
 
+        # Discard changes in the current branch
+        git restore --source=HEAD --staged --worktree -- package-lock.json
+        git clean -fdx
+        
         # Temporary workaround for authentication
         git remote add origin-https "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/omptech/nextra-demo.git"
         git fetch origin-https
