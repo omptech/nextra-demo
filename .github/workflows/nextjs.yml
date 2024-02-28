@@ -53,34 +53,24 @@ jobs:
         git config --global user.name "omptech"
         git config --global user.email "omprakashlodhi38@gmail.com"
 
-        # Setup GitHub token for authentication
-        git config --global credential.helper store
-        echo "https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com" > ~/.git-credentials
+        # Ensure the output directory exists
+        mkdir -p out
+
+        # Temporary workaround for authentication
+        git remote add origin-https "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/omptech/nextra-demo.git"
+        git fetch origin-https
+        git checkout -b gh-pages origin-https/gh-pages
         
-        # Clone the gh-pages branch outside of the workspace
-        cd ..
-        git clone https://github.com/omptech/nextra-demo.git --branch gh-pages --single-branch gh-pages
+        # Sync PR preview
+        rsync -av --exclude='.git' --delete out/ pr-${{ github.event.pull_request.number }}/
         
-        # Copy the build output to the gh-pages clone
-        cp -r $GITHUB_WORKSPACE/out/* gh-pages/
-        
-        # Move into the gh-pages clone directory
-        cd gh-pages
-        
-        # Create a new directory for the PR preview
-        mkdir -p pr-${{ github.event.pull_request.number }}
-        cp -r $GITHUB_WORKSPACE/out/* pr-${{ github.event.pull_request.number }}/
-        
-        # Add, commit, and push the changes
         git add .
-        git commit -m "Deploy PR preview for PR #${{ github.event.pull_request.number }}"
-        git push
-        
-        # Clean up
-        cd $GITHUB_WORKSPACE
+        git status
+        git commit -m "Deploy PR preview for PR #${{ github.event.pull_request.number }}" || echo "No changes to commit"
+        git push origin-https gh-pages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        
     - name: Comment PR Preview URL
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v5
