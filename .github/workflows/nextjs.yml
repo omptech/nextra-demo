@@ -68,11 +68,6 @@ jobs:
         git fetch origin gh-pages
         git worktree add gh-pages-temp gh-pages
 
-        # Clear existing PR preview or create new one
-        rm -rf gh-pages-temp/pr-${{ github.event.pull_request.number }}/
-        mkdir -p gh-pages-temp/pr-${{ github.event.pull_request.number }}
-        cp -r out/* gh-pages-temp/pr-${{ github.event.pull_request.number }}/
-
         # Navigate to the gh-pages worktree, commit, and push changes
         cd gh-pages-temp
         git add .
