@@ -53,6 +53,12 @@ jobs:
         git config --global user.name "omptech"
         git config --global user.email "omprakashlodhi38@gmail.com"
 
+        # Check if out directory exists and has content
+        if [ ! -d out ] || [ -z "$(ls -A out)" ]; then 
+          echo "The out directory is missing or empty. Check the build step."
+          exit 1
+        fi
+
         # Ensure the output directory exists
         mkdir -p out
 
