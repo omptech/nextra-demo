@@ -53,20 +53,23 @@ jobs:
         git config --global user.name "omptech"
         git config --global user.email "omprakashlodhi38@gmail.com"
 
-        ls -la
-        echo "Listing out directory:"
-        ls -la out
-
-        # Ensure the output directory exists
-        mkdir -p out
+        # Ensure the 'out' directory exists and has content
+        if [ ! -d out ] || [ -z "$(ls -A out)" ]; then 
+          echo "The 'out' directory is missing or empty. Check the build step."
+          exit 1
+        fi
 
         # Discard changes in the current branch
         git restore --source=HEAD --staged --worktree -- .
-        git clean -fdx
         
         # Setup and use a worktree for gh-pages branch
         git fetch origin gh-pages
         git worktree add gh-pages-temp gh-pages
+
+        # This example assumes the PR preview should be placed in a directory named after the PR number
+        rm -rf gh-pages-temp/pr-${{ github.event.pull_request.number }}/*
+        mkdir -p gh-pages-temp/pr-${{ github.event.pull_request.number }}
+        cp -r out/* gh-pages-temp/pr-${{ github.event.pull_request.number }}/
 
         # Navigate to the gh-pages worktree, commit, and push changes
         cd gh-pages-temp
