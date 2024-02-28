@@ -50,12 +50,12 @@ jobs:
       if: github.event_name == 'pull_request'
       run: |
         # Setup git with your identity
-        git config --global user.name "GitHub Actions"
-        git config --global user.email "actions@github.com"
+        git config --global user.name "omptech"
+        git config --global user.email "omprakashlodhi38@gmail.com"
         
         # Clone the gh-pages branch outside of the workspace
         cd ..
-        git clone https://github.com/<your-username>/<your-repo>.git --branch gh-pages --single-branch gh-pages
+        git clone https://github.com/omptech/nextra-demo.git --branch gh-pages --single-branch gh-pages
         
         # Copy the build output to the gh-pages clone
         cp -r $GITHUB_WORKSPACE/out/* gh-pages/
