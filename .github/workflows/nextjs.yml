@@ -52,6 +52,10 @@ jobs:
         # Setup git with your identity
         git config --global user.name "omptech"
         git config --global user.email "omprakashlodhi38@gmail.com"
+
+        # Setup GitHub token for authentication
+        git config --global credential.helper store
+        echo "https://${{ secrets.GITHUB_TOKEN }}:x-oauth-basic@github.com" > ~/.git-credentials
         
         # Clone the gh-pages branch outside of the workspace
         cd ..
