@@ -13,8 +13,7 @@ const nextConfig = {
   swcMinify: true,
   trailingSlash: true,
   assetPrefix,
-  basePath: assetPrefix,
-  output: "export",
+  basePath: assetPrefix
 };
 module.exports = {
     basePath: process.env.PR_NUMBER ? `/pr-${process.env.PR_NUMBER}` : '',
@@ -22,7 +21,6 @@ module.exports = {
     images: {
         unoptimized: true,
     },
-    output: "export",
     // Your existing configuration and new conditional paths
     reactStrictMode: true
     ...withNextra(),
