@@ -10,7 +10,7 @@
         "dev": "next dev",
         "build": "next build",
         "start": "next start",
-        "export": "NODE_ENV=production next build && touch out/.nojekyll",
+        "export": "next export",
         "deploy": "gh-pages -d out",
         "cleanup-pr-preview": "node cleanup-pr-preview.js"
     },
