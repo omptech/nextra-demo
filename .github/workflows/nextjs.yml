@@ -46,15 +46,43 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         # No target-folder for production deployment
 
-    - name: Deploy PR Preview to GitHub Pages
+    - name: Deploy PR Preview to GitHub Pages (Alternative)
       if: github.event_name == 'pull_request'
-      uses: JamesIves/github-pages-deploy-action@4.1.4
-      with:
-        branch: gh-pages
-        folder: out
-        token: ${{ secrets.GITHUB_TOKEN }}
-        target-folder: pr-${{ github.event.pull_request.number }}
+      run: |
+        # Setup git with your identity
+        git config --global user.name "omptech"
+        git config --global user.email "omprakashlodhi38@gmail.com"
 
+        # Ensure the 'out' directory exists and has content
+        if [ ! -d out ] || [ -z "$(ls -A out)" ]; then 
+          echo "The 'out' directory is missing or empty. Check the build step."
+          exit 1
+        fi
+
+        # Discard changes in the current branch
+        git restore --source=HEAD --staged --worktree -- .
+        
+        # Setup and use a worktree for gh-pages branch
+        git fetch origin gh-pages
+        git worktree add gh-pages-temp gh-pages
+
+        # This example assumes the PR preview should be placed in a directory named after the PR number
+        rm -rf gh-pages-temp/pr-${{ github.event.pull_request.number }}/*
+        mkdir -p gh-pages-temp/pr-${{ github.event.pull_request.number }}
+        cp -r out/* gh-pages-temp/pr-${{ github.event.pull_request.number }}/
+
+        # Navigate to the gh-pages worktree, commit, and push changes
+        cd gh-pages-temp
+        git add .
+        git commit -m "Deploy PR preview for PR #${{ github.event.pull_request.number }}" || echo "No changes to commit"
+        git push origin gh-pages
+
+        # Clean up: remove the temporary worktree
+        cd ..
+        git worktree remove gh-pages-temp
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
     - name: Comment PR Preview URL
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v5
